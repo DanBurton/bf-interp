@@ -26,11 +26,11 @@ right (Tape ls v (r:rs)) = Tape (v:ls) r rs
 
 incr :: Tape -> Tape
 incr (Tape ls v rs) = Tape ls v' rs
-  where v' = if v >= '\256' then '\0' else succ v
+  where v' = if v >= '\255' then '\0' else succ v
 
 decr :: Tape -> Tape
 decr (Tape ls v rs) = Tape ls v' rs
-  where v' = if v <= '\0' then '\256' else pred v
+  where v' = if v <= '\0' then '\255' else pred v
 
 inChar :: Tape -> IO Tape
 inChar (Tape ls _ rs) = (\c -> Tape ls c rs) <$> getChar
