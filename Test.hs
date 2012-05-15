@@ -1,6 +1,8 @@
 import TapeM
 import Program
 
+import Control.Applicative
+
 replicateI :: Monad m => Int -> m () -> Program m -> Program m
 replicateI 0 i p = p
 replicateI n i p = Instruction i (replicateI (n - 1) i p)
@@ -13,7 +15,7 @@ helloWorld = replicateI 10 incr -- initialize counter (cell #0) to 10
            $ loopKnot initStuff printStuff
 
 loopControl :: Program TapeM -> Program TapeM -> Program TapeM
-loopControl = branch is0
+loopControl = branch (not <$> is0)
 
 loopKnot :: (Program TapeM -> Program TapeM) -> Program TapeM -> Program TapeM
 loopKnot continueMake break =

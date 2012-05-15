@@ -64,7 +64,7 @@ liftI :: TapeM () -> String -> ParseState TapeP
 liftI i cs = Instruction i <$> toProgramStep cs
 
 loopControl :: TapeP -> TapeP -> TapeP
-loopControl = branch is0
+loopControl = branch (not <$> is0)
 
 toProgramStep :: String -> ParseState TapeP
 toProgramStep ('>':cs) = liftI right   cs
