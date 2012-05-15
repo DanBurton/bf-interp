@@ -11,13 +11,25 @@ import Control.Monad.Trans.Maybe
 import Data.Maybe (fromMaybe)
 
 type TapeP = Program TapeM
-type ParseState = MaybeT (State [TapeP])
+type ParseState = MaybeT (StateT [TapeP] (State [TapeP]))
 
 push :: TapeP -> ParseState ()
 push p = lift $ modify (p:)
 
 pop :: ParseState TapeP
 pop = do
+  (x:xs) <- get
+  put xs
+  return x
+
+-- two lifts will get us past the StateT [TapeP]
+-- so it can work on the inner State [TapeP]
+
+push' :: TapeP -> ParseState ()
+push' p = lift $ lift $ modify (p:)
+
+pop' :: ParseState TapeP
+pop' = lift $ lift $ do
   (x:xs) <- get
   put xs
   return x
@@ -29,14 +41,14 @@ instance (MonadFix m) => MonadFix (MaybeT m) where
 
 
 toProgram :: String -> Maybe TapeP
-toProgram = flip evalState [] . runMaybeT . toProgramStep
+toProgram = flip evalState [] . flip evalStateT [] . runMaybeT . toProgramStep
 
 
 openBrace :: ParseState TapeP -> ParseState TapeP
 openBrace mcontinue = do
   rec continue <- push loop >> mcontinue
       loop     <- do
-            break <- pop
+            break <- pop'
             return $ loopControl continue break
   return loop
 
@@ -44,7 +56,7 @@ closeBrace :: ParseState TapeP -> ParseState TapeP
 closeBrace mbreak = do
   loop <- pop
   break <- mbreak
-  push break
+  push' break
   return loop
 
 
