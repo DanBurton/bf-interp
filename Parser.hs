@@ -54,7 +54,7 @@ openBrace mcontinue = do
 
 closeBrace :: ParseState TapeP -> ParseState TapeP
 closeBrace mbreak = do
-  loop <- pop
+  loop  <- pop
   break <- mbreak
   push' break
   return loop
@@ -73,7 +73,7 @@ toProgramStep ('+':cs) = liftI incr    cs
 toProgramStep ('-':cs) = liftI decr    cs
 toProgramStep (',':cs) = liftI inChar  cs
 toProgramStep ('.':cs) = liftI outChar cs
-toProgramStep ('[':cs) = openBrace (toProgramStep cs)
-toProgramStep (']':cs) = closeBrace  (toProgramStep cs)
-toProgramStep (_:cs) = toProgramStep cs
-toProgramStep [] = return Halt
+toProgramStep ('[':cs) = openBrace  (toProgramStep cs)
+toProgramStep (']':cs) = closeBrace (toProgramStep cs)
+toProgramStep (_:cs)   = toProgramStep cs
+toProgramStep []       = return Halt
