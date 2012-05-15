@@ -5,4 +5,8 @@ import Program (runProgram)
 import Parser (toProgram)
 
 runBF :: String -> IO ()
-runBF = flip evalTapeM newTape . runProgram . toProgram
+runBF str = case toProgram str of
+  Just prog -> flip evalTapeM newTape $ runProgram prog
+  Nothing   -> putStrLn "error runBF: ill-formed program"
+
+main = runBF "++++++++++[>>++++++>+++++++++++>++++++++++>+++++++++>+++>+++++>++++>++++++++>+[<]<-]>>+++++++.>+.-.>+++.<++++.>>+++++++.<<++.+.>+++++.>.<<-.>---.<-----.-.+++++.>>>+++.-.<<-.<+..----.>>>>++++++++.>+++++++..<<<<+.>>>>-.<<<<.++++.------.<+++++.---.>>>>>.<<<++.<<---.>++++++.>>>>+.<<<-.--------.<<+.>>>>>>+++.---.<-.<<<<---.<.>---.>>>>>>."
