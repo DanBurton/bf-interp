@@ -1,3 +1,5 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module TapeM (
     TapeM
   , Tape
@@ -19,28 +21,29 @@ import Control.Monad.State
 import Control.Monad.IO.Class
 import Control.Applicative
 
-type TapeM = StateT Tape IO
+newtype TapeM a = TapeM { unTapeM :: StateT Tape IO a }
+                deriving (Monad, Applicative, Functor)
 
 left :: TapeM ()
-left = modify T.left
+left = TapeM $ modify T.left
 
 right :: TapeM ()
-right = modify T.right
+right = TapeM $ modify T.right
 
 incr :: TapeM ()
-incr = modify T.incr
+incr = TapeM $ modify T.incr
 
 decr :: TapeM ()
-decr = modify T.decr
+decr = TapeM $ modify T.decr
 
 inChar :: TapeM ()
-inChar = get >>= liftIO . T.inChar >>= put
+inChar = TapeM $ get >>= liftIO . T.inChar >>= put
 
 outChar :: TapeM ()
-outChar = get >>= liftIO . T.outChar
+outChar = TapeM $ get >>= liftIO . T.outChar
 
 is0 :: TapeM Bool
-is0 = T.is0 <$> get
+is0 = TapeM $ T.is0 <$> get
 
 evalTapeM :: TapeM a -> Tape -> IO a
-evalTapeM = evalStateT
+evalTapeM = evalStateT . unTapeM
